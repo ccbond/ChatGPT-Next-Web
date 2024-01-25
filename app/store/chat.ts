@@ -328,7 +328,7 @@ export const useChatStore = createPersistStore(
               botMessage.content = message;
               get().onNewMessage(botMessage);
             }
-            ChatControllerPool.remove(session.id, botMessage.id);
+            // ChatControllerPool.remove(session.id, botMessage.id);
           },
           onError(error) {
             const isAborted = error.message.includes("aborted");
@@ -344,20 +344,20 @@ export const useChatStore = createPersistStore(
             get().updateCurrentSession((session) => {
               session.messages = session.messages.concat();
             });
-            ChatControllerPool.remove(
-              session.id,
-              botMessage.id ?? messageIndex,
-            );
+            // ChatControllerPool.remove(
+            //   session.id,
+            //   botMessage.id ?? messageIndex,
+            // );
 
             console.error("[Chat] failed ", error);
           },
           onController(controller) {
             // collect controller for stop/retry
-            ChatControllerPool.addController(
-              session.id,
-              botMessage.id ?? messageIndex,
-              controller,
-            );
+            // ChatControllerPool.addController(
+            //   session.id,
+            //   botMessage.id ?? messageIndex,
+            //   controller,
+            // );
           },
         });
       },

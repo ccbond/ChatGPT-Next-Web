@@ -34,6 +34,10 @@ const DEFAULT_ACCESS_STATE = {
   googleApiKey: "",
   googleApiVersion: "v1",
 
+  // chatglm api
+  chatglmUrl: "http://202.112.113.34:5000",
+  chatglmPath: "api",
+
   // server config
   needCode: true,
   hideUserApiKey: false,

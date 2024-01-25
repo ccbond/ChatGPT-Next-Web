@@ -68,11 +68,13 @@ export enum ServiceProvider {
   OpenAI = "OpenAI",
   Azure = "Azure",
   Google = "Google",
+  ChatGLM = "ChatGLM",
 }
 
 export enum ModelProvider {
   GPT = "GPT",
   GeminiPro = "GeminiPro",
+  ChatGLM = "ChatGLM",
 }
 
 export const OpenaiPath = {
@@ -91,6 +93,11 @@ export const Google = {
   ChatPath: "v1beta/models/gemini-pro:generateContent",
 
   // /api/openai/v1/chat/completions
+};
+
+export const ChatGLM = {
+  ExampleEndpoint: "http://202.112.113.34:5000/",
+  ChatPath: "api",
 };
 
 export const DEFAULT_INPUT_TEMPLATE = `{{input}}`; // input / time / model / lang
@@ -245,6 +252,15 @@ export const DEFAULT_MODELS = [
       id: "google",
       providerName: "Google",
       providerType: "google",
+    },
+  },
+  {
+    name: "chatglm-liufei",
+    available: true,
+    provider: {
+      id: "chatglm",
+      providerName: "ChatGLM",
+      providerType: "chatglm",
     },
   },
 ] as const;

@@ -56,12 +56,12 @@ export interface LLMModelProvider {
 }
 
 export abstract class LLMApi {
-  abstract chat(options: ChatOptions): Promise<void>;
+  abstract chat(options: ChatOptions, messages?: any): Promise<void>;
   abstract usage(): Promise<LLMUsage>;
   abstract models(): Promise<LLMModel[]>;
 }
 
-type ProviderName = "openai" | "azure" | "claude" | "palm";
+type ProviderName = "openai" | "azure" | "claude" | "palm" | "chatglm";
 
 interface Model {
   name: string;
@@ -144,7 +144,7 @@ export function getHeaders() {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "x-requested-with": "XMLHttpRequest",
-    "Accept": "application/json",
+    Accept: "application/json",
   };
   const modelConfig = useChatStore.getState().currentSession().mask.modelConfig;
   const isGoogle = modelConfig.model === "gemini-pro";
