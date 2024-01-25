@@ -165,7 +165,7 @@ export function SideBar(props: { className?: string }) {
         </div>
       </div>
 
-      <div className={styles["sidebar-header-bar"]}>
+      {/* <div className={styles["sidebar-header-bar"]}>
         <IconButton
           icon={<MaskIcon />}
           text={shouldNarrow ? undefined : Locale.Mask.Name}
@@ -186,7 +186,7 @@ export function SideBar(props: { className?: string }) {
           onClick={() => showToast(Locale.WIP)}
           shadow
         />
-      </div>
+      </div> */}
 
       <div
         className={styles["sidebar-body"]}
@@ -199,7 +199,7 @@ export function SideBar(props: { className?: string }) {
         <ChatList narrow={shouldNarrow} />
       </div>
 
-      <div className={styles["sidebar-tail"]}>
+      {/* <div className={styles["sidebar-tail"]}>
         <div className={styles["sidebar-actions"]}>
           <div className={styles["sidebar-action"] + " " + styles.mobile}>
             <IconButton
@@ -237,7 +237,7 @@ export function SideBar(props: { className?: string }) {
             shadow
           />
         </div>
-      </div>
+      </div> */}
 
       <div
         className={styles["sidebar-drag"]}

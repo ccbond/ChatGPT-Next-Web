@@ -1076,7 +1076,7 @@ function _Chat() {
           </div>
         </div>
         <div className="window-actions">
-          {!isMobileScreen && (
+          {/* {!isMobileScreen && (
             <div className="window-action-button">
               <IconButton
                 icon={<RenameIcon />}
@@ -1084,7 +1084,7 @@ function _Chat() {
                 onClick={() => setIsEditingMessage(true)}
               />
             </div>
-          )}
+          )} */}
           <div className="window-action-button">
             <IconButton
               icon={<ExportIcon />}
@@ -1265,7 +1265,7 @@ function _Chat() {
       <div className={styles["chat-input-panel"]}>
         <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
 
-        <ChatActions
+        {/* <ChatActions
           showPromptModal={() => setShowPromptModal(true)}
           scrollToBottom={scrollToBottom}
           hitBottom={hitBottom}
@@ -1280,7 +1280,7 @@ function _Chat() {
             setUserInput("/");
             onSearch("");
           }}
-        />
+        /> */}
         <div className={styles["chat-input-panel-inner"]}>
           <textarea
             ref={inputRef}
