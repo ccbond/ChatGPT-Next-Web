@@ -13,7 +13,6 @@ import {
   SUMMARIZE_MODEL,
 } from "../constant";
 import { ClientApi, RequestMessage } from "../client/api";
-import { ChatControllerPool } from "../client/controller";
 import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
@@ -53,6 +52,10 @@ export interface ChatSession {
   lastUpdate: number;
   lastSummarizeIndex: number;
   clearContextIndex?: number;
+  history?: any[];
+  category?: string;
+  status?: string;
+  userID?: number;
 
   mask: Mask;
 }
@@ -76,6 +79,10 @@ function createEmptySession(): ChatSession {
     },
     lastUpdate: Date.now(),
     lastSummarizeIndex: 0,
+    history: [],
+    category: "",
+    status: "",
+    userID: 0,
 
     mask: createEmptyMask(),
   };
@@ -270,6 +277,7 @@ export const useChatStore = createPersistStore(
       async onUserInput(content: string) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
+        console.log("Current model config: ", modelConfig);
 
         const userContent = fillTemplateWith(content, modelConfig);
         console.log("[User Input] after template: ", userContent);
@@ -302,64 +310,74 @@ export const useChatStore = createPersistStore(
           ]);
         });
 
-        var api: ClientApi;
-        if (modelConfig.model === "gemini-pro") {
-          api = new ClientApi(ModelProvider.GeminiPro);
-        } else {
-          api = new ClientApi(ModelProvider.GPT);
-        }
+        const api: ClientApi = new ClientApi(ModelProvider.ChatGLM);
+
+        const startTime = Date.now();
 
         // make request
-        api.llm.chat({
-          messages: sendMessages,
-          config: { ...modelConfig, stream: true },
-          onUpdate(message) {
-            botMessage.streaming = true;
-            if (message) {
-              botMessage.content = message;
-            }
-            get().updateCurrentSession((session) => {
-              session.messages = session.messages.concat();
-            });
-          },
-          onFinish(message) {
-            botMessage.streaming = false;
-            if (message) {
-              botMessage.content = message;
-              get().onNewMessage(botMessage);
-            }
-            // ChatControllerPool.remove(session.id, botMessage.id);
-          },
-          onError(error) {
-            const isAborted = error.message.includes("aborted");
-            botMessage.content +=
-              "\n\n" +
-              prettyObject({
-                error: true,
-                message: error.message,
+        api.llm.chat(
+          {
+            messages: sendMessages,
+            config: { ...modelConfig, stream: false },
+            onUpdate(message) {
+              botMessage.streaming = false;
+              if (message) {
+                botMessage.content = message;
+              }
+              get().updateCurrentSession((session) => {
+                session.messages = session.messages.concat();
               });
-            botMessage.streaming = false;
-            userMessage.isError = !isAborted;
-            botMessage.isError = !isAborted;
-            get().updateCurrentSession((session) => {
-              session.messages = session.messages.concat();
-            });
-            // ChatControllerPool.remove(
-            //   session.id,
-            //   botMessage.id ?? messageIndex,
-            // );
+            },
+            onFinish(message, history, category) {
+              botMessage.streaming = false;
+              if (message) {
+                botMessage.content = message;
+                get().onNewMessage(botMessage);
+              }
+              get().updateCurrentSession((session) => {
+                session.history = history;
+                session.category = category;
+              });
+              console.log("update session, history: ", history);
+              // ChatControllerPool.remove(session.id, botMessage.id);
+            },
+            onError(error) {
+              const isAborted = error.message.includes("aborted");
+              botMessage.content +=
+                "\n\n" +
+                prettyObject({
+                  error: true,
+                  message: error.message,
+                });
+              botMessage.streaming = false;
+              userMessage.isError = !isAborted;
+              botMessage.isError = !isAborted;
+              get().updateCurrentSession((session) => {
+                session.messages = session.messages.concat();
+              });
+              // ChatControllerPool.remove(
+              //   session.id,
+              //   botMessage.id ?? messageIndex,
+              // );
 
-            console.error("[Chat] failed ", error);
+              console.error("[Chat] failed ", error);
+            },
+            onController(controller) {
+              // collect controller for stop/retry
+              // ChatControllerPool.addController(
+              //   session.id,
+              //   botMessage.id ?? messageIndex,
+              //   controller,
+              // );
+            },
           },
-          onController(controller) {
-            // collect controller for stop/retry
-            // ChatControllerPool.addController(
-            //   session.id,
-            //   botMessage.id ?? messageIndex,
-            //   controller,
-            // );
-          },
-        });
+          content,
+          session.history,
+          startTime,
+          session.category,
+          session.status,
+          session.userID,
+        );
       },
 
       getMemoryPrompt() {

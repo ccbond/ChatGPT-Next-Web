@@ -89,6 +89,8 @@ import { prettyObject } from "../utils/format";
 import { ExportMessageModal } from "./exporter";
 import { getClientConfig } from "../config/client";
 import { useAllModels } from "../utils/hooks";
+import Modal2 from "./model-props";
+import { SendEndResult } from "../client/api";
 
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
@@ -628,6 +630,7 @@ function _Chat() {
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const navigate = useNavigate();
+  const [isEnd, setIsEnd] = useState(false);
 
   // prompt hints
   const promptStore = usePromptStore();
@@ -660,7 +663,7 @@ function _Chat() {
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(measure, [userInput]);
+  useEffect(measure, [2]);
 
   // chat commands shortcuts
   const chatCommands = useChatCommand({
@@ -706,6 +709,10 @@ function _Chat() {
     }
     setIsLoading(true);
     chatStore.onUserInput(userInput).then(() => setIsLoading(false));
+    if (chatStore.currentSession().status === "3") {
+      setIsEnd(true);
+    }
+
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUserInput("");
     setPromptHints([]);
@@ -1048,6 +1055,42 @@ function _Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleAccept = () => {
+    const session = chatStore.currentSession();
+    SendEndResult(session.userID, true);
+
+    setIsLoading(true);
+    chatStore.updateCurrentSession((session) => (session.status = "4"));
+
+    chatStore.onUserInput("最后一次，填写问卷").then(() => setIsLoading(false));
+
+    localStorage.setItem(LAST_INPUT_KEY, userInput);
+    setUserInput("");
+    setPromptHints([]);
+    if (!isMobileScreen) inputRef.current?.focus();
+    setAutoScroll(true);
+
+    setIsEnd(false); // 关闭弹窗
+  };
+
+  const handleReject = () => {
+    const session = chatStore.currentSession();
+    SendEndResult(session.userID, true);
+
+    setIsLoading(true);
+    chatStore.updateCurrentSession((session) => (session.status = "4"));
+
+    chatStore.onUserInput("最后一次，填写问卷").then(() => setIsLoading(false));
+
+    localStorage.setItem(LAST_INPUT_KEY, userInput);
+    setUserInput("");
+    setPromptHints([]);
+    if (!isMobileScreen) inputRef.current?.focus();
+    setAutoScroll(true);
+
+    setIsEnd(false); // 关闭弹窗
+  };
+
   return (
     <div className={styles.chat} key={session.id}>
       <div className="window-header" data-tauri-drag-region>
@@ -1260,6 +1303,14 @@ function _Chat() {
             </Fragment>
           );
         })}
+        <div>
+          <Modal2
+            isOpen={isEnd}
+            onClose={() => setIsEnd(false)}
+            onAccept={handleAccept}
+            onReject={handleReject}
+          />
+        </div>
       </div>
 
       <div className={styles["chat-input-panel"]}>

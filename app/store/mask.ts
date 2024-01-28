@@ -1,8 +1,8 @@
 import { BUILTIN_MASKS } from "../masks";
 import { getLang, Lang } from "../locales";
 import { DEFAULT_TOPIC, ChatMessage } from "./chat";
-import { ModelConfig, useAppConfig } from "./config";
-import { StoreKey } from "../constant";
+import { DEFAULT_CONFIG, ModelConfig, useAppConfig } from "./config";
+import { DEFAULT_MODELS, StoreKey } from "../constant";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
 
@@ -33,7 +33,7 @@ export const createEmptyMask = () =>
     name: DEFAULT_TOPIC,
     context: [],
     syncGlobalConfig: true, // use global config as default
-    modelConfig: { ...useAppConfig.getState().modelConfig },
+    modelConfig: DEFAULT_CONFIG.modelConfig,
     lang: getLang(),
     builtin: false,
     createdAt: Date.now(),

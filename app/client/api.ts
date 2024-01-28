@@ -2,12 +2,14 @@ import { getClientConfig } from "../config/client";
 import {
   ACCESS_CODE_PREFIX,
   Azure,
+  ChatGLM,
   ModelProvider,
   ServiceProvider,
 } from "../constant";
 import { ChatMessage, ModelType, useAccessStore, useChatStore } from "../store";
 import { ChatGPTApi } from "./platforms/openai";
 import { GeminiProApi } from "./platforms/google";
+import { ChatGLMApi } from "./platforms/chatglm";
 export const ROLES = ["system", "user", "assistant"] as const;
 export type MessageRole = (typeof ROLES)[number];
 
@@ -33,7 +35,13 @@ export interface ChatOptions {
   config: LLMConfig;
 
   onUpdate?: (message: string, chunk: string) => void;
-  onFinish: (message: string) => void;
+  onFinish: (
+    message: string,
+    history?: any,
+    category?: string,
+    status?: string,
+    userID?: number,
+  ) => void;
   onError?: (err: Error) => void;
   onController?: (controller: AbortController) => void;
 }
@@ -56,7 +64,15 @@ export interface LLMModelProvider {
 }
 
 export abstract class LLMApi {
-  abstract chat(options: ChatOptions, messages?: any): Promise<void>;
+  abstract chat(
+    options: ChatOptions,
+    userMessage?: any,
+    history?: any[],
+    startTime?: number,
+    category?: string,
+    status?: string,
+    userID?: number,
+  ): Promise<void>;
   abstract usage(): Promise<LLMUsage>;
   abstract models(): Promise<LLMModel[]>;
 }
@@ -90,6 +106,11 @@ export class ClientApi {
       this.llm = new GeminiProApi();
       return;
     }
+    if (provider === ModelProvider.ChatGLM) {
+      this.llm = new ChatGLMApi();
+      return;
+    }
+
     this.llm = new ChatGPTApi();
   }
 
@@ -143,33 +164,29 @@ export function getHeaders() {
   const accessStore = useAccessStore.getState();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "x-requested-with": "XMLHttpRequest",
     Accept: "application/json",
   };
-  const modelConfig = useChatStore.getState().currentSession().mask.modelConfig;
-  const isGoogle = modelConfig.model === "gemini-pro";
-  const isAzure = accessStore.provider === ServiceProvider.Azure;
-  const authHeader = isAzure ? "api-key" : "Authorization";
-  const apiKey = isGoogle
-    ? accessStore.googleApiKey
-    : isAzure
-    ? accessStore.azureApiKey
-    : accessStore.openaiApiKey;
-
-  const makeBearer = (s: string) => `${isAzure ? "" : "Bearer "}${s.trim()}`;
-  const validString = (x: string) => x && x.length > 0;
-
-  // use user's api key first
-  if (validString(apiKey)) {
-    headers[authHeader] = makeBearer(apiKey);
-  } else if (
-    accessStore.enabledAccessControl() &&
-    validString(accessStore.accessCode)
-  ) {
-    headers[authHeader] = makeBearer(
-      ACCESS_CODE_PREFIX + accessStore.accessCode,
-    );
-  }
 
   return headers;
+}
+
+export async function SendEndResult(userID: any, submit: boolean) {
+  try {
+    const chatPath = "http://202.112.113.34:5000/submit";
+    const chatPayload = {
+      method: "POST",
+      body: JSON.stringify({
+        start_time: Date.now(),
+        user_id: userID,
+        submit,
+      }),
+      headers: getHeaders(),
+    };
+
+    const response = await fetch(chatPath, chatPayload);
+    const responseData: any = await response.json();
+    console.log("responsedata", responseData);
+  } catch (e) {
+    console.log("[Request submint error]", e);
+  }
 }
