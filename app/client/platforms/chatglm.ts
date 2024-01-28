@@ -23,7 +23,13 @@ export class ChatGLMApi implements LLMApi {
     userID?: number,
   ) {
     if (status === "4") {
-      options.onFinish("xxxx", [], category, status, userID);
+      options.onFinish(
+        "提交成功，结束对话，请您返回完成问卷。",
+        [],
+        category,
+        status,
+        userID,
+      );
     }
 
     console.log("[Request] chatglm request: user message", userMessage);
