@@ -97,7 +97,7 @@ export const Google = {
 
 export const ChatGLM = {
   ChatEndpoint: "http://192.168.0.103:5000/",
-  ChatPath: "llm",
+  ChatPath: "chat",
 };
 
 export const DEFAULT_INPUT_TEMPLATE = `{{input}}`; // input / time / model / lang
