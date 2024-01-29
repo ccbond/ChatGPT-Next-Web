@@ -35,7 +35,7 @@ const DEFAULT_ACCESS_STATE = {
   googleApiVersion: "v1",
 
   // chatglm api
-  chatglmUrl: "http://192.168.0.103:5000",
+  chatglmUrl: "http://192.168.0.103:8080",
   chatglmPath: "api",
 
   // server config
