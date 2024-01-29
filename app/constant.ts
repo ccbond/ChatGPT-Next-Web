@@ -96,7 +96,7 @@ export const Google = {
 };
 
 export const ChatGLM = {
-  ChatEndpoint: "http://192.168.0.103:8080/",
+  ChatEndpoint: "http://192.168.0.103:80/",
   ChatPath: "chat",
 };
 

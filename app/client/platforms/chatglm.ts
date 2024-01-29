@@ -78,7 +78,7 @@ export class ChatGLMApi implements LLMApi {
       const requestPayload2 = {
         request_id: responseData1.request_id,
       };
-      const chatPath2 = "http://192.168.0.103:8080/get_task";
+      const chatPath2 = "http://192.168.0.103:80/get_task";
       const chatPayload2 = {
         method: "POST",
         body: JSON.stringify(requestPayload2),

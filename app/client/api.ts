@@ -172,7 +172,7 @@ export function getHeaders() {
 
 export async function SendEndResult(userID: any, submit: boolean) {
   try {
-    const chatPath = "http://192.168.0.103:8080/submit";
+    const chatPath = "http://192.168.0.103:80/submit";
     const chatPayload = {
       method: "POST",
       body: JSON.stringify({
