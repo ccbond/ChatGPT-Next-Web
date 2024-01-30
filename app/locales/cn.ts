@@ -71,7 +71,7 @@ const cn = {
       if (submitKey === String(SubmitKey.Enter)) {
         inputHints += "，Shift + Enter 换行";
       }
-      return inputHints + "，/ 触发补全，: 触发命令";
+      return inputHints;
     },
     Send: "发送",
     Config: {
@@ -119,7 +119,7 @@ const cn = {
     ResetConfirm: "确认清空历史摘要？",
   },
   Home: {
-    NewChat: "新的聊天",
+    NewChat: "在线健康问答",
     DeleteChat: "确认删除选中的对话？",
     DeleteToast: "已删除会话",
     Revert: "撤销",
@@ -234,8 +234,8 @@ const cn = {
     },
     Prompt: {
       Disable: {
-        Title: "禁用提示词自动补全",
-        SubTitle: "在输入框开头输入 / 即可触发自动补全",
+        Title: "x",
+        SubTitle: "x",
       },
       List: "自定义提示词列表",
       ListCount: (builtin: number, custom: number) =>
@@ -358,8 +358,15 @@ const cn = {
     },
   },
   Store: {
-    DefaultTopic: "新的聊天",
-    BotHello: "有什么可以帮你的吗",
+    DefaultTopic: "在线健康问答",
+    BotHello: `您好，欢迎您体验本实验的在线健康问答系统。\n
+    实验流程为：\n
+    1. 请您想象您有真实的健康问答需求，因此在本系统付费进行健康问答；\n
+    2. 您可以在本系统询问健康相关的问题，多轮对话直至系统生成健康建议；\n
+    3. 生成建议后，系统弹出请您选择采纳或不采纳该健康建议的按钮，请您选择按钮点击；\n
+    4. 点击后即可返回问卷进行问卷填写。\n
+    请注意生成一次健康建议后，系统实际可以支持继续进行交流，为节省您的时间，因此仅进行一次交流。\n
+    非常感谢您的耐心参与和对本实验的大力支持!\n`,
     Error: "出错了，稍后重试吧",
     Prompt: {
       History: (content: string) => "这是历史聊天总结作为前情提要：" + content,

@@ -1,5 +1,6 @@
 import {
   ApiPath,
+  ChatGLM,
   DEFAULT_API_HOST,
   ServiceProvider,
   StoreKey,
@@ -35,7 +36,7 @@ const DEFAULT_ACCESS_STATE = {
   googleApiVersion: "v1",
 
   // chatglm api
-  chatglmUrl: "http://192.168.0.103:8090",
+  chatglmUrl: ChatGLM.ChatEndpoint,
   chatglmPath: "api",
 
   // server config

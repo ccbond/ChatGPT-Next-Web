@@ -4,8 +4,7 @@ import { ChatOptions, getHeaders, LLMApi, LLMModel, LLMUsage } from "../api";
 
 export class ChatGLMApi implements LLMApi {
   path(path: string): string {
-    const accessStore = useAccessStore.getState();
-    let baseUrl = accessStore.chatglmUrl;
+    let baseUrl = ChatGLM.ChatEndpoint;
     return [baseUrl, path].join("/");
   }
 
@@ -24,7 +23,7 @@ export class ChatGLMApi implements LLMApi {
   ) {
     if (status === "4") {
       options.onFinish(
-        "提交成功，结束对话，请您返回完成问卷。",
+        `提交成功，结束对话，请您返回完成问卷。您的用户ID是${userID}，请您记住该ID，后续需要填在问卷里。本实验为匿名试验，不会记录您的真实身份信息。`,
         [],
         category,
         status,
@@ -78,7 +77,7 @@ export class ChatGLMApi implements LLMApi {
       const requestPayload2 = {
         request_id: responseData1.request_id,
       };
-      const chatPath2 = "http://192.168.0.103:8090/get_task";
+      const chatPath2 = ChatGLM.ChatEndpoint + "/get_task";
       const chatPayload2 = {
         method: "POST",
         body: JSON.stringify(requestPayload2),
