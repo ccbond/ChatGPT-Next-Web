@@ -1,7 +1,7 @@
 import Fuse from "fuse.js";
 import { getLang } from "../locales";
 import { StoreKey } from "../constant";
-import { nanoid } from "nanoid";
+import { v4 as uuidv4 } from 'uuid';
 import { createPersistStore } from "../utils/store";
 
 export interface Prompt {
@@ -57,7 +57,7 @@ export const usePromptStore = createPersistStore(
   (set, get) => ({
     add(prompt: Prompt) {
       const prompts = get().prompts;
-      prompt.id = nanoid();
+      prompt.id = uuidv4();
       prompt.isUser = true;
       prompt.createdAt = Date.now();
       prompts[prompt.id] = prompt;
@@ -140,7 +140,7 @@ export const usePromptStore = createPersistStore(
       };
 
       if (version < 3) {
-        Object.values(newState.prompts).forEach((p) => (p.id = nanoid()));
+        Object.values(newState.prompts).forEach((p) => (p.id = uuidv4()));
       }
 
       return newState as any;
@@ -162,7 +162,7 @@ export const usePromptStore = createPersistStore(
             return promptList.map(
               ([title, content]) =>
                 ({
-                  id: nanoid(),
+                  id: uuidv4(),
                   title,
                   content,
                   createdAt: Date.now(),

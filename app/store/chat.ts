@@ -15,7 +15,7 @@ import {
 import { ClientApi, RequestMessage } from "../client/api";
 import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
-import { nanoid } from "nanoid";
+import { v4 as uuidv4 } from 'uuid';
 import { createPersistStore } from "../utils/store";
 
 export type ChatMessage = RequestMessage & {
@@ -28,7 +28,7 @@ export type ChatMessage = RequestMessage & {
 
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
   return {
-    id: nanoid(),
+    id: uuidv4(),
     date: new Date().toLocaleString(),
     role: "user",
     content: "",
@@ -68,7 +68,7 @@ export const BOT_HELLO: ChatMessage = createMessage({
 
 function createEmptySession(): ChatSession {
   return {
-    id: nanoid(),
+    id: uuidv4(),
     topic: DEFAULT_TOPIC,
     memoryPrompt: "",
     messages: [],
@@ -411,14 +411,14 @@ export const useChatStore = createPersistStore(
         var systemPrompts: ChatMessage[] = [];
         systemPrompts = shouldInjectSystemPrompts
           ? [
-              createMessage({
-                role: "system",
-                content: fillTemplateWith("", {
-                  ...modelConfig,
-                  template: DEFAULT_SYSTEM_TEMPLATE,
-                }),
+            createMessage({
+              role: "system",
+              content: fillTemplateWith("", {
+                ...modelConfig,
+                template: DEFAULT_SYSTEM_TEMPLATE,
               }),
-            ]
+            }),
+          ]
           : [];
         if (shouldInjectSystemPrompts) {
           console.log(
@@ -536,8 +536,8 @@ export const useChatStore = createPersistStore(
             onFinish(message) {
               get().updateCurrentSession(
                 (session) =>
-                  (session.topic =
-                    message.length > 0 ? trimTopic(message) : DEFAULT_TOPIC),
+                (session.topic =
+                  message.length > 0 ? trimTopic(message) : DEFAULT_TOPIC),
               );
             },
           });
@@ -652,10 +652,9 @@ export const useChatStore = createPersistStore(
       }
 
       if (version < 3) {
-        // migrate id to nanoid
         newState.sessions.forEach((s) => {
-          s.id = nanoid();
-          s.messages.forEach((m) => (m.id = nanoid()));
+          s.id = uuidv4();
+          s.messages.forEach((m) => (m.id = uuidv4()));
         });
       }
 

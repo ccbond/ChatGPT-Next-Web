@@ -2,9 +2,9 @@ import { BUILTIN_MASKS } from "../masks";
 import { getLang, Lang } from "../locales";
 import { DEFAULT_TOPIC, ChatMessage } from "./chat";
 import { DEFAULT_CONFIG, ModelConfig, useAppConfig } from "./config";
-import { DEFAULT_MODELS, StoreKey } from "../constant";
-import { nanoid } from "nanoid";
+import { StoreKey } from "../constant";
 import { createPersistStore } from "../utils/store";
+import { v4 as uuidv4 } from 'uuid';
 
 export type Mask = {
   id: string;
@@ -28,7 +28,7 @@ export type MaskState = typeof DEFAULT_MASK_STATE;
 export const DEFAULT_MASK_AVATAR = "gpt-bot";
 export const createEmptyMask = () =>
   ({
-    id: nanoid(),
+    id: uuidv4(),
     avatar: DEFAULT_MASK_AVATAR,
     name: DEFAULT_TOPIC,
     context: [],
@@ -45,7 +45,7 @@ export const useMaskStore = createPersistStore(
   (set, get) => ({
     create(mask?: Partial<Mask>) {
       const masks = get().masks;
-      const id = nanoid();
+      const id = uuidv4();
       masks[id] = {
         ...createEmptyMask(),
         ...mask,
@@ -107,9 +107,8 @@ export const useMaskStore = createPersistStore(
     migrate(state, version) {
       const newState = JSON.parse(JSON.stringify(state)) as MaskState;
 
-      // migrate mask id to nanoid
       if (version < 3) {
-        Object.values(newState.masks).forEach((m) => (m.id = nanoid()));
+        Object.values(newState.masks).forEach((m) => (m.id = uuidv4()));
       }
 
       if (version < 3.1) {
