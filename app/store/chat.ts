@@ -15,7 +15,7 @@ import {
 import { ClientApi, RequestMessage } from "../client/api";
 import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import { createPersistStore } from "../utils/store";
 
 export type ChatMessage = RequestMessage & {
@@ -328,7 +328,7 @@ export const useChatStore = createPersistStore(
                 session.messages = session.messages.concat();
               });
             },
-            onFinish(message, history, category) {
+            onFinish(message, history, category, status, userID) {
               botMessage.streaming = false;
               if (message) {
                 botMessage.content = message;
@@ -337,6 +337,8 @@ export const useChatStore = createPersistStore(
               get().updateCurrentSession((session) => {
                 session.history = history;
                 session.category = category;
+                session.status = status;
+                session.userID = userID;
               });
               console.log("update session, history: ", history);
               // ChatControllerPool.remove(session.id, botMessage.id);
@@ -411,14 +413,14 @@ export const useChatStore = createPersistStore(
         var systemPrompts: ChatMessage[] = [];
         systemPrompts = shouldInjectSystemPrompts
           ? [
-            createMessage({
-              role: "system",
-              content: fillTemplateWith("", {
-                ...modelConfig,
-                template: DEFAULT_SYSTEM_TEMPLATE,
+              createMessage({
+                role: "system",
+                content: fillTemplateWith("", {
+                  ...modelConfig,
+                  template: DEFAULT_SYSTEM_TEMPLATE,
+                }),
               }),
-            }),
-          ]
+            ]
           : [];
         if (shouldInjectSystemPrompts) {
           console.log(
@@ -536,8 +538,8 @@ export const useChatStore = createPersistStore(
             onFinish(message) {
               get().updateCurrentSession(
                 (session) =>
-                (session.topic =
-                  message.length > 0 ? trimTopic(message) : DEFAULT_TOPIC),
+                  (session.topic =
+                    message.length > 0 ? trimTopic(message) : DEFAULT_TOPIC),
               );
             },
           });

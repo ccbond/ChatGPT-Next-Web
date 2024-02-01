@@ -29,6 +29,7 @@ export class ChatGLMApi implements LLMApi {
         status,
         userID,
       );
+      return;
     }
 
     console.log("[Request] chatglm request: user message", userMessage);
@@ -36,7 +37,7 @@ export class ChatGLMApi implements LLMApi {
     const min = 1;
     const max = 200;
     const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-    if (userID === 0) {
+    if (userID == null || userID === 0) {
       userID = randomNum;
     }
     const requestPayload1 = {
@@ -73,6 +74,10 @@ export class ChatGLMApi implements LLMApi {
 
     let latestStatus = "";
 
+    function delay(ms: any) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
     while (!isGetChatResponse) {
       const requestPayload2 = {
         request_id: responseData1.request_id,
@@ -88,7 +93,7 @@ export class ChatGLMApi implements LLMApi {
         const response = await fetch(chatPath2, chatPayload2);
         console.log("[Request] chatglm response", response);
         responseData2 = await response.json();
-        console.log(responseData2);
+        console.log("[Response2]", responseData2);
         if (responseData2.status !== "1") {
           latestStatus = responseData2.status;
           isGetChatResponse = true;
@@ -97,15 +102,17 @@ export class ChatGLMApi implements LLMApi {
         console.log("[Request] failed to make a chat request", e);
         options.onError?.(e as Error);
       }
+
+      await delay(1000);
     }
 
     if (latestStatus === "3") {
       options.onFinish(
-        " 请点击按钮选择接受与否。",
+        responseData2.response + "\n请点击按钮选择接受与否。",
         [],
         responseData2.category,
         responseData2.status,
-        responseData2.userID,
+        responseData2.user_id,
       );
     } else {
       options.onFinish(
@@ -113,31 +120,9 @@ export class ChatGLMApi implements LLMApi {
         responseData2.history,
         responseData2.category,
         responseData2.status,
-        responseData2.userID,
+        responseData2.user_id,
       );
     }
-
-    // try {
-    //   const chatPath = this.path(ChatGLM.ChatPath);
-    //   const chatPayload = {
-    //     method: "POST",
-    //     body: JSON.stringify(requestPayload),
-    //     headers: getHeaders(),
-    //   };
-
-    //   console.log("[Request] chatglm payload: ", chatPayload);
-
-    //   const response = await fetch(chatPath, chatPayload);
-
-    //   console.log("[Request] chatglm response", response);
-
-    //   const responseData: any = await response.json();
-    //   console.log("responsedata", responseData);
-    //   options.onFinish(responseData.response, responseData.hisotry);
-    // } catch (e) {
-    //   console.log("[Request] failed to make a chat request", e);
-    //   options.onError?.(e as Error);
-    // }
   }
   async usage() {
     return {
