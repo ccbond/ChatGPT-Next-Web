@@ -1,6 +1,7 @@
 import { ChatGLM } from "@/app/constant";
-import { useAccessStore } from "@/app/store";
 import { ChatOptions, getHeaders, LLMApi, LLMModel, LLMUsage } from "../api";
+
+var defaultUserID = 0;
 
 export class ChatGLMApi implements LLMApi {
   path(path: string): string {
@@ -38,7 +39,8 @@ export class ChatGLMApi implements LLMApi {
     const max = 200;
     const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
     if (userID == null || userID === 0) {
-      userID = randomNum;
+      userID = defaultUserID;
+      defaultUserID = defaultUserID + 1;
     }
     const requestPayload1 = {
       user: userMessage ?? "",
@@ -78,7 +80,9 @@ export class ChatGLMApi implements LLMApi {
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    while (!isGetChatResponse) {
+    let index = 0;
+
+    while (!isGetChatResponse && index < 10) {
       const requestPayload2 = {
         request_id: responseData1.request_id,
       };
@@ -97,6 +101,8 @@ export class ChatGLMApi implements LLMApi {
         if (responseData2.status !== "1") {
           latestStatus = responseData2.status;
           isGetChatResponse = true;
+        } else {
+          index = index + 1;
         }
       } catch (e) {
         console.log("[Request] failed to make a chat request", e);
@@ -106,9 +112,15 @@ export class ChatGLMApi implements LLMApi {
       await delay(1000);
     }
 
+    if (index === 10) {
+      options.onFinish(
+        "很抱歉，系统出现问题，给您带来不愉快的体验，请您重新提问。",
+      );
+    }
+
     if (latestStatus === "3") {
       options.onFinish(
-        responseData2.response + "\n请点击按钮选择接受与否。",
+        responseData2.response,
         [],
         responseData2.category,
         responseData2.status,
